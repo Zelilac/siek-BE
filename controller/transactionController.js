@@ -328,7 +328,7 @@ module.exports = {
     try {
       let { id } = req.params
       console.log(req.params)
-      if (req.user.role === "admin") {
+      if (req.user.role === "admin" || req.user.role === "role") {
         acceptSQL = await dbQuery(`UPDATE transaction SET id_transaction_status = 1 WHERE id=${db.escape(id)}`)
       }
       res.status(200).send({ message: "success accept transaction" })
@@ -372,7 +372,7 @@ module.exports = {
       let { iduser } = req.user
       console.log(req.user)
       console.log(req.params)
-      if (req.user.role === "admin") {
+      if (req.user.role === "admin" || req.user.role === "role")  {
         acceptSQL = await dbQuery(`UPDATE transaction SET id_transaction_status = 3 WHERE id=${db.escape(id)}`)
       }
       res.status(200).send({ message: "success reject transaction" })
