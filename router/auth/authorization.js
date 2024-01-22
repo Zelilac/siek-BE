@@ -9,7 +9,7 @@ module.exports = {
             }
             req.user = decoded
 
-            if(req.user.role == "admin"){
+            if(req.user.role === "admin" || req.user.role === "role") {
                 next()
             } else {
                 return res.status(401).send("User not verified")

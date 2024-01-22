@@ -24,6 +24,7 @@ router.get(
 );
 router.post("/upload-transaction", readToken, userController.uploadTransaction);
 router.patch("/patch-user", readToken, userController.patchUser);
+router.patch("/patch-role-user", readToken, userController.patchRoleUser);
 // router.get("/get-image-user", userController.getImageUser);
 router.patch("/set-default", readToken,userController.setDefault);
 router.get("/get-city", userController.getCity);

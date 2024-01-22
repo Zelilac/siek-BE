@@ -601,7 +601,7 @@ module.exports = {
   },
   deleteAddress: async (req, res, next) => {
     try {
-      let {iduser} = req.user
+      let { iduser } = req.user
       //console.log(req.query);
       deleteAddress = await dbQuery(
         `DELETE FROM address WHERE id=${db.escape(req.query.id)} AND iduser = ${db.escape(iduser)}`
@@ -634,7 +634,7 @@ module.exports = {
   },
   postAddress: async (req, res, next) => {
     try {
-      let {iduser} = req.user
+      let { iduser } = req.user
       let { tag, recipient, origin, postalCode, address } = req.body;
 
       let cekDefault = await dbQuery(`SELECT * FROM address WHERE set_default = 1 AND iduser = ${db.escape(iduser)}`);
@@ -664,7 +664,7 @@ module.exports = {
   },
   patchAddress: async (req, res, next) => {
     try {
-      let {iduser} = req.user
+      let { iduser } = req.user
       let { idaddress, tag, recipient, origin, postalCode, address } =
         req.body;
       postAddress = await dbQuery(
@@ -863,7 +863,7 @@ module.exports = {
 
       console.log(cekTransactionDetail)
 
-      if (cekTransactionDetail.length > 0){
+      if (cekTransactionDetail.length > 0) {
         if (dataSearch.length > 0) {
           transactionDetail = `select s.*,t.*,p.*,pi.*,td.qty_buy,td.total_netto as qty_buy_total_netto,td.netto as transaction_detail_netto,td.created_at,td.updated_at from transaction_detail td join stock s on s.idproduct = td.idproduct join transaction t on td.idtransaction = t.id join product p on p.id = td.idproduct AND t.idtype=s.idtype join product_image pi on pi.idproduct = td.idproduct where ${dataSearch.join(
             " AND "
@@ -872,10 +872,10 @@ module.exports = {
           transactionDetail = `select s.*,t.*,p.*,pi.*,td.qty_buy,td.total_netto as qty_buy_total_netto,td.netto as transaction_detail_netto,td.created_at,td.updated_at from transaction_detail td join stock s on s.idproduct = td.idproduct join transaction t on td.idtransaction = t.id join product p on p.id = td.idproduct AND t.idtype=s.idtype join product_image pi on pi.idproduct = td.idproduct`;
         }
         history = await dbQuery(transactionDetail);
-  
+
         // console.log(transactions);
         res.status(200).send(history);
-      }else{
+      } else {
         transactionDetail = `SELECT * from transaction where id = ${req.params.idtransaction}`
         history = await dbQuery(transactionDetail);
 
@@ -887,7 +887,7 @@ module.exports = {
   },
   setDefault: async (req, res, next) => {
     try {
-      let {iduser} = req.user
+      let { iduser } = req.user
       let { idaddress } = req.body;
 
       // console.log("cek default", idaddress, iduser);
@@ -966,7 +966,7 @@ module.exports = {
   getTransactionProof: async (req, res, next) => {
     try {
       let transProof
-        dataSearch = [];
+      dataSearch = [];
       for (let prop in req.params) {
         dataSearch.push(`${prop} = ${db.escape(req.params[prop])}`);
       }
@@ -993,12 +993,40 @@ module.exports = {
       next(error);
     }
   },
-  confirmationPayment:async(req,res,next)=>{
+  confirmationPayment: async (req, res, next) => {
     try {
       origin = await dbQuery(`SELECT * FROM confirmation_payment WHERE idtransaction=${req.params.idtransaction}`)
       res.status(200).send(origin)
     } catch (error) {
       next(error)
     }
-  }
+  },
+  patchRoleUser: async (req, res, next) => {
+    try {
+
+      let { iduser, role } = req.body;
+
+
+      let getRole = await dbQuery(
+        `SELECT idrole from role where role=${db.escape(
+          role
+        )}`
+      );
+
+      if (getRole.lenth === 0) {
+        res.status(400).send({ status: 400, messages: "Role invalid" })
+      }
+
+      patchUsers = await dbQuery(
+        `UPDATE user SET idrole=${db.escape(
+          getRole[0].idrole
+        )}
+        WHERE iduser=${db.escape(iduser)}`
+      );
+
+      res.status(200).send({ message: "Success update role" });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
