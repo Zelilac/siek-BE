@@ -130,7 +130,7 @@ module.exports = {
         let postTransaction = `INSERT INTO transaction SET ?`;
         let transaction = await dbQuery(postTransaction, {
           iduser: iduser,
-          id_transaction_status: id_transaction_status,
+          id_transaction_status: 1,
           invoice: invoice,
           id_city_origin: id_city_origin,
           id_city_destination: id_city_destination,

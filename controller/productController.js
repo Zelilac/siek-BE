@@ -105,7 +105,12 @@ module.exports = {
             description
           )}, ${db.escape(netto)}, ${db.escape(
             pack_price
-          )}, ${db.escape(unit)}, now(), now());`;
+          )}, ${db.escape(unit)}, now(), now(),  ${db.escape(
+            req.user.iduser
+          )});`;
+
+            console.log(addProduct, "asdasdad")
+
           addProduct = await dbQuery(addProduct);
 
           let addImg = `INSERT into product_image values (null, ${addProduct.insertId
@@ -511,7 +516,7 @@ module.exports = {
     try {
       let { idproduct, iduser } = req.query;
 
-      console.log(idproduct);
+      console.log(idproduct, "asdasda");
       console.log(iduser);
       let deleteCart = await dbQuery(
         `DELETE FROM cart WHERE idproduct =${db.escape(

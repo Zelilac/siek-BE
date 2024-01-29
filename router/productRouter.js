@@ -24,7 +24,7 @@ router.patch("/decrement", productController.decrementStock);
 router.post("/add-to-cart", productController.addToCart);
 
 // router.post("/shipping-cost", productController.shippingCost);
-router.delete("", productController.deleteProductCart);
+// router.delete("", productController.deleteProductCart);
 router.post('/review', readToken, productController.addReviews)
 
 module.exports = router;

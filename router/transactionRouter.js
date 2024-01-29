@@ -21,6 +21,6 @@ router.get('/revenue', authentication, authorization, transactionController.reve
 router.get('/product-sales', authentication, authorization, transactionController.productSales)
 router.patch("/resi/:id", readToken, transactionController.patchResiTransaction);
 router.patch("/delivered/:id", readToken, transactionController.deliveredTransaction);
-router.patch("/finished/:id", readToken, transactionController.finishedTransaction);
+router.patch("/finished/:id", readToken, transactionController.deliveredTransaction);
 
 module.exports = router;
