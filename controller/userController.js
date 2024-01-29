@@ -421,20 +421,19 @@ module.exports = {
       }
 
       if (Object.keys(req.query).length > 0) {
-        getUser = `SELECT iduser, fullname, gender, age, username, email, role, status, profile_image, otp, created_at, updated_at 
+        getUser = `SELECT iduser, school_name, fullname, gender, age, username, email, role, status, profile_image, otp, u.created_at, u.updated_at 
                 from user as u
-                LEFT join role as r
-                on r.idrole = u.idrole
-                left join status as s
-                on s.idstatus = u.idstatus WHERE ${userSearch.join(" AND ")};`;
+                LEFT join role as r on r.idrole = u.idrole
+                left join status as s on s.idstatus = u.idstatus 
+                left join schools as sc on sc.id = u.school_id 
+                WHERE ${userSearch.join(" AND ")};`;
         //console.log(getUser);
       } else {
-        getUser = `SELECT iduser, fullname, gender, age, username, email, role, status, profile_image, otp, created_at, updated_at  
+        getUser = `SELECT iduser, school_name, fullname, gender, age, username, email, role, status, profile_image, otp, u.created_at, u.updated_at  
                 from user as u
-                LEFT join role as r
-                on r.idrole = u.idrole
-                left join status as s
-                on s.idstatus = u.idstatus;`;
+                LEFT join role as r on r.idrole = u.idrole
+                left join status as s on s.idstatus = u.idstatus 
+                left join schools as sc on sc.id = u.school_id;`;
       }
       getUser = await dbQuery(getUser);
       let getAddress = `SELECT * from address;`;
@@ -823,7 +822,7 @@ module.exports = {
 
       if (dataSearch.length > 0) {
         let { idtype } = req.params;
-        historyTrans = `SELECT t.id,t.idtype,u.fullname, t.iduser as iduser, t.invoice,c.name as origin, ct.name as destination,t.recipient,t.address,t.postal_code,t.shipping_cost,ts.name as status_name,t.total_price,t.note,t.img_order_url,t.id_city_origin,t.id_city_destination,t.expedition,t.service FROM transaction t 
+        historyTrans = `SELECT t.id,t.review,t.idtype,u.fullname, t.iduser as iduser, t.invoice,c.name as origin, ct.name as destination,t.recipient,t.address,t.postal_code,t.shipping_cost,ts.name as status_name,t.total_price,t.note,t.img_order_url,t.id_city_origin,t.id_city_destination,t.expedition,t.service FROM transaction t 
         join user u on u.iduser=t.iduser 
         join transaction_status ts on t.id_transaction_status=ts.id 
         join city c on t.id_city_origin = c.id 
@@ -834,7 +833,7 @@ module.exports = {
           historyTrans += ` and t.iduser = ${req.user.iduser}`
         }
       } else {
-        historyTrans = `SELECT t.id,t.idtype,u.fullname, t.iduser as iduser, t.invoice,c.name as destination, ct.name as destination,t.recipient,t.address,t.postal_code,t.shipping_cost,ts.name as status_name,t.total_price,t.note,t.img_order_url,t.id_city_origin,t.id_city_destination,t.expedition,t.service FROM transaction t 
+        historyTrans = `SELECT t.id,t.review,t.idtype,u.fullname, t.iduser as iduser, t.invoice,c.name as destination, ct.name as destination,t.recipient,t.address,t.postal_code,t.shipping_cost,ts.name as status_name,t.total_price,t.note,t.img_order_url,t.id_city_origin,t.id_city_destination,t.expedition,t.service FROM transaction t 
         join user u on u.iduser=t.iduser 
         join transaction_status ts on t.id_transaction_status=ts.id 
         join city c on t.id_city_destination = c.id 
@@ -872,8 +871,6 @@ module.exports = {
           transactionDetail = `select s.*,t.*,p.*,pi.*,td.qty_buy,td.total_netto as qty_buy_total_netto,td.netto as transaction_detail_netto,td.created_at,td.updated_at from transaction_detail td join stock s on s.idproduct = td.idproduct join transaction t on td.idtransaction = t.id join product p on p.id = td.idproduct AND t.idtype=s.idtype join product_image pi on pi.idproduct = td.idproduct`;
         }
         history = await dbQuery(transactionDetail);
-
-        // console.log(transactions);
         res.status(200).send(history);
       } else {
         transactionDetail = `SELECT * from transaction where id = ${req.params.idtransaction}`
@@ -945,7 +942,7 @@ module.exports = {
 
             let updateStatusTransaction = await dbQuery(
               `UPDATE transaction SET id_transaction_status = ${db.escape(
-                json.id_transaction_status
+                2
               )} WHERE id = ${db.escape(json.idtransaction)} `
             );
           }
@@ -1013,7 +1010,7 @@ module.exports = {
         )}`
       );
 
-      if (getRole.lenth === 0) {
+      if (getRole.length === 0) {
         res.status(400).send({ status: 400, messages: "Role invalid" })
       }
 
@@ -1025,6 +1022,75 @@ module.exports = {
       );
 
       res.status(200).send({ message: "Success update role" });
+    } catch (error) {
+      next(error);
+    }
+  },
+  postUser: async (req, res, next) => {
+    try {
+
+      let { fullname, username, gender, age, email, role, school_id } = req.body;
+
+      let getUsername = await dbQuery(
+        `SELECT username from user where username=${db.escape(
+          username
+        )}`
+      );
+
+      if (getUsername.length > 0) {
+        res.status(400).send({ status: 400, messages: "Username Already Used!" })
+      }
+
+      let getEmail = await dbQuery(
+        `SELECT email from user where email=${db.escape(
+          email
+        )}`
+      );
+
+      if (getEmail.length > 0) {
+        res.status(400).send({ status: 400, messages: "Email Already Used!" })
+      }
+
+      let getRole = await dbQuery(
+        `SELECT idrole from role where role=${db.escape(
+          role
+        )}`
+      );
+
+      if (getRole.length === 0) {
+        res.status(400).send({ status: 400, messages: "Role invalid" })
+      }
+
+      let hashPassword = Crypto.createHmac("sha256", "PHR$$$")
+        .update("Test1234@")
+        .digest("hex");
+
+      postUsers = await dbQuery(
+        `INSERT INTO user (fullname, gender, age, username, email, idrole, idstatus, password, school_id) VALUES(
+          ${db.escape(fullname)}, ${db.escape(gender)}, ${db.escape(age)}, ${db.escape(username)}, 
+          ${db.escape(email)}, ${getRole[0].idrole}, 1, ${db.escape(hashPassword)}, ${db.escape(school_id)})`
+      );
+
+      res.status(200).send({ message: "Success create user with default password!" });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getTransactionItem: async (req, res, next) => {
+    try {
+      const { idtransaction } = req.params;
+
+      let cekTransactionDetail = await dbQuery(`SELECT td.*, p.product_name from transaction_detail td JOIN product p ON td.idproduct = p.id WHERE idtransaction = ${db.escape(idtransaction)} `)
+
+      res.status(200).send(cekTransactionDetail);
+    } catch (err) {
+      next(err);
+    }
+  },
+  getSchools: async (req, res, next) => {
+    try {
+      origin = await dbQuery(`SELECT id AS code, school_name AS name FROM schools WHERE is_delete = false`);
+      res.status(200).send(origin);
     } catch (error) {
       next(error);
     }

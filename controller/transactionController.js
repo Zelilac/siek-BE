@@ -328,8 +328,8 @@ module.exports = {
     try {
       let { id } = req.params
       console.log(req.params)
-      if (req.user.role === "admin" || req.user.role === "role") {
-        acceptSQL = await dbQuery(`UPDATE transaction SET id_transaction_status = 1 WHERE id=${db.escape(id)}`)
+      if (req.user.role === "admin" || req.user.role === "role" || req.user.role === "seller") {
+        acceptSQL = await dbQuery(`UPDATE transaction SET id_transaction_status = 3 WHERE id=${db.escape(id)}`)
       }
       res.status(200).send({ message: "success accept transaction" })
     } catch (error) {
@@ -372,7 +372,7 @@ module.exports = {
       let { iduser } = req.user
       console.log(req.user)
       console.log(req.params)
-      if (req.user.role === "admin" || req.user.role === "role")  {
+      if (req.user.role === "admin" || req.user.role === "role" || req.user.role === "seller")  {
         acceptSQL = await dbQuery(`UPDATE transaction SET id_transaction_status = 3 WHERE id=${db.escape(id)}`)
       }
       res.status(200).send({ message: "success reject transaction" })
@@ -483,6 +483,35 @@ module.exports = {
     } catch (error) {
       next(error)
     }
-  }
-
+  },
+  patchResiTransaction: async (req, res, next) => {
+    try {
+      let { id } = req.params
+      let { resi } = req.body
+      if (req.user.role === "admin" || req.user.role === "role" || req.user.role === "seller") {
+        acceptSQL = await dbQuery(`UPDATE transaction SET id_transaction_status = 4, resi_number = ${db.escape(resi)} WHERE id=${db.escape(id)}`)
+      }
+      res.status(200).send({ message: "success accept transaction" })
+    } catch (error) {
+      next(error)
+    }
+  },
+  deliveredTransaction: async (req, res, next) => {
+    try {
+      let { id } = req.params
+      acceptSQL = await dbQuery(`UPDATE transaction SET id_transaction_status = 5 WHERE id=${db.escape(id)}`)
+      res.status(200).send({ message: "success accept transaction" })
+    } catch (error) {
+      next(error)
+    }
+  },
+  finishedTransaction: async (req, res, next) => {
+    try {
+      let { id } = req.params
+      acceptSQL = await dbQuery(`UPDATE transaction SET id_transaction_status = 6 WHERE id=${db.escape(id)}`)
+      res.status(200).send({ message: "success accept transaction" })
+    } catch (error) {
+      next(error)
+    }
+  },
 }

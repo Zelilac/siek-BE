@@ -12,12 +12,15 @@ router.post(
   readToken,
   transactionController.perscriptionTransaction
 );
-router.delete("/delete",transactionController.deleteProductCart);
+router.delete("/delete", transactionController.deleteProductCart);
 router.get("/bill", transactionController.getTransaction);
-router.patch("/accept/:id", readToken,transactionController.acceptTransaction);
-router.patch("/reject/:id", readToken,transactionController.rejectTransaction);
+router.patch("/accept/:id", readToken, transactionController.acceptTransaction);
+router.patch("/reject/:id", readToken, transactionController.rejectTransaction);
 router.get('/sales-report', authorization, transactionController.salesReport)
 router.get('/revenue', authentication, authorization, transactionController.revenue)
 router.get('/product-sales', authentication, authorization, transactionController.productSales)
+router.patch("/resi/:id", readToken, transactionController.patchResiTransaction);
+router.patch("/delivered/:id", readToken, transactionController.deliveredTransaction);
+router.patch("/finished/:id", readToken, transactionController.finishedTransaction);
 
 module.exports = router;

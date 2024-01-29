@@ -30,4 +30,10 @@ router.patch("/set-default", readToken,userController.setDefault);
 router.get("/get-city", userController.getCity);
 router.get("/confirmation-payment/:idtransaction",userController.confirmationPayment);
 router.get('/transfer-proof/:idtransaction', authorization, userController.getTransactionProof)
+router.post("/post-user", readToken, userController.postUser);
+router.get(
+  "/item-transactions/:idtransaction",
+  userController.getTransactionItem
+);
+router.get("/get-schools", readToken, userController.getSchools);
 module.exports = router;
