@@ -20,9 +20,9 @@ module.exports = {
   addReviews: (iduser, body) =>{
     let values = []
     body.forEach((item, index) =>{
-      values.push(`(${iduser}, ${db.escape(item.idproduct)}, ${db.escape(item.rating)}, ${db.escape(item.review)})`)
+      values.push(`(${iduser}, ${db.escape(item.idproduct)}, ${db.escape(item.rating)}, ${db.escape(item.review)}, ${db.escape(item.id)})`)
     })
-    let addReview = `INSERT INTO review (iduser, idproduct, rating, review) values ${values.join(',')} `
+    let addReview = `INSERT INTO review (iduser, idproduct, rating, review, id_transaction_detail) values ${values.join(',')} `
     return dbQuery(addReview)
   },
   updateReview: (iduser, body) =>{
